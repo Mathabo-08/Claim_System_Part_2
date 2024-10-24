@@ -1,0 +1,37 @@
+﻿@model ClaimManagementSystem.Models.Lecturer
+
+@{
+    ViewData["Title"] = "Login_Lecturer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Lecturer Login</h2>
+
+<div class="form-container">
+    <form asp-action="Login_Lecturer" method="post">
+        <div class="form-group">
+            <label asp-for="EmployeeNumber">Employee Number</label>
+            <input type="number" asp-for="EmployeeNumber" class="form-control" required />
+            <span asp-validation-for="EmployeeNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="LecturerEmail">Lecturer Email</label>
+            <input type="email" asp-for="LecturerEmail" class="form-control" required />
+            <span asp-validation-for="LecturerEmail" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>
+
+<div>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            Invalid login attempt. Please check your details and try again.
+        </div>
+    }
+</div>
+
+<a href="@Url.Action("Login", "ClaimSystem")" class="button-link">Back to User Selection</a>

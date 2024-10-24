@@ -1,0 +1,52 @@
+﻿@model ClaimManagementSystem.Models.ClaimSubmission
+
+@{
+    ViewData["Title"] = "SubmitClaim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<header>
+    <nav>
+        <ul>
+            <li><a asp-controller="ClaimSystem" asp-action="Login">Login</a></li>
+            <li><a asp-controller="ClaimSystem" asp-action="Success">Success</a></li>
+        </ul>
+    </nav>
+</header>
+
+<h2>Submit Claim</h2>
+
+<div class="form-container">
+    <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="ClaimDate" />
+
+        <div class="form-group">
+            <label asp-for="Amount">Amount</label>
+            <input type="number" asp-for="Amount" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="MonthlyHoursWorked">Monthly Hours Worked</label>
+            <input type="number" asp-for="MonthlyHoursWorked" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="HourlyRate">Hourly Rate</label>
+            <input type="number" asp-for="HourlyRate" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="SuppDocFileContent">Supporting Document</label>
+            <input type="file" asp-for="SuppDocFileContent" accept=".pdf,.docx,.xlsx" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="SuppDocFileName">Supporting Document Name</label>
+            <input type="text" asp-for="SuppDocFileName" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Claim</button>
+    </form>
+</div>
+
+<a href="@Url.Action("Login", "ClaimSystem")" class="button-link">Back to User Selection</a>

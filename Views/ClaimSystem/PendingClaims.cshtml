@@ -1,0 +1,49 @@
+﻿@model IEnumerable<ClaimManagementSystem.Models.ClaimSubmission>
+
+@{
+    ViewData["Title"] = "PendingClaims";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<header>
+    <nav>
+        <ul>
+            <li><a asp-controller="ClaimSystem" asp-action="Login">Login</a></li>
+            <li><a asp-controller="ClaimSystem" asp-action="Success">Success</a></li>
+        </ul>
+    </nav>
+</header>
+
+<h2>Pending Claims</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Claim ID</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var claim in Model)
+        {
+            <tr>
+                <td>@claim.ClaimID</td>
+                <td>@claim.Amount</td>
+                <td>@claim.ClaimStatus</td>
+                <td>
+                    <form asp-action="RespondToClaim" method="post">
+                        <input type="hidden" name="claimId" value="@claim.ClaimID" />
+                        <select name="response">
+                            <option value="Accepted">Accept</option>
+                            <option value="Rejected">Reject</option>
+                        </select>
+                        <input type="text" name="feedback" placeholder="Feedback" />
+                        <button type="submit">Respond</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

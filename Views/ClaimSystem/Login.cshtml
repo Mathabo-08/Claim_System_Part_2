@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<body>
+    <div class="container">
+        <h1>Welcome to Contract Monthly Claim System</h1>
+        <img src="Images/at the top.png" alt="Logo" class="logo">
+        <p>Login as:</p>
+        <div class="button-container">
+            <form asp-action="SelectRole" method="post">
+                <button class="login-button" name="role" value="Lecturer" type="submit">Lecturer</button>
+                <button class="login-button" name="role" value="Contractor" type="submit">Contractor</button>
+            </form>
+        </div>
+    </div>
+</body>
