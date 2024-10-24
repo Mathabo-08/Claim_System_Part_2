@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClaimManagementSystem.Models;
 using ClaimManagementSystem.Context;
+using Microsoft.Data.SqlClient;
 
 namespace ClaimManagementSystem.Controllers
 {
@@ -188,21 +189,19 @@ namespace ClaimManagementSystem.Controllers
 
             if (claim != null)
             {
-                claim.ClaimStatus = response;
-                await _context.SaveChangesAsync();
+                // Call stored procedure to update claim status
+                await _context.Database.ExecuteSqlRawAsync("EXEC UpdateClaimStatus @ClaimID, @NewStatus, @ContractorID, @Feedback",
+                    new SqlParameter("@ClaimID", claimId),
+                    new SqlParameter("@NewStatus", response),
+                    new SqlParameter("@ContractorID", HttpContext.Session.GetInt32("UserId").Value),
+                    new SqlParameter("@Feedback", feedback));
 
-                var claimStatus = new ClaimStatus
-                {
-                    StatusDate = DateTime.Now,
-                    ContractorFeedback = feedback,
-                    Claim_Status = response,
-                    EmployeeNumber = claim.EmployeeNumber,
-                    ClaimID = claimId
-                };
-                _context.ClaimStatuses.Add(claimStatus);
-                await _context.SaveChangesAsync();
+                // Redirect to PendingClaims after updating
+                return RedirectToAction("PendingClaims");
             }
 
+            // Handle the case where the claim doesn't exist
+            ModelState.AddModelError("", "Claim not found.");
             return RedirectToAction("PendingClaims");
         }
 
