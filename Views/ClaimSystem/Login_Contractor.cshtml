@@ -11,7 +11,7 @@
     <form asp-action="Login_Contractor" method="post">
         <div class="form-group">
             <label for="typeOfContractor">Type of Contractor</label>
-            <select name="typeOfContractor" class="form-control" required>
+            <select asp-for="TypeOfContractor" class="form-control" required>
                 <option value="">Select Type</option>
                 <option value="Project Coordinator">Project Coordinator</option>
                 <option value="Academic Manager">Academic Manager</option>

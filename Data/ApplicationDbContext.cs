@@ -9,7 +9,7 @@ namespace ClaimManagementSystem.Context
         {
         }
 
-        public DbSet<Lecturer> Lecturers { get; set; }
+        public DbSet<Lecturer> Lecturer { get; set; }
         public DbSet<ClaimSubmission> ClaimSubmission { get; set; }
         public DbSet<Contractor> Contractors { get; set; }
         public DbSet<Payments> Payments { get; set; }
@@ -21,27 +21,27 @@ namespace ClaimManagementSystem.Context
             base.OnModelCreating(modelBuilder);
 
             // Ensure that ClaimSubmission has a primary key defined
-            modelBuilder.Entity<ClaimSubmission>()
+            modelBuilder.Entity<ClaimSubmission>().ToTable("ClaimSubmission")
                 .HasKey(cs => cs.ClaimID);
 
             // Ensure that ClaimStatus has a primary key defined
-            modelBuilder.Entity<ClaimStatus>()
+            modelBuilder.Entity<ClaimStatus>().ToTable("ClaimStatus")
                 .HasKey(cs => cs.StatusID);
 
             // Ensure that ContractorResponse has a primary key defined
-            modelBuilder.Entity<ContractorResponse>()
+            modelBuilder.Entity<ContractorResponse>().ToTable("ContractorResponds")
                 .HasKey(cs => cs.ResponseID);
 
             // Ensure that Lecturer has a primary key defined
-            modelBuilder.Entity<Lecturer>()
+            modelBuilder.Entity<Lecturer>().ToTable("Lecturer")
                 .HasKey(cs => cs.EmployeeNumber);
 
             // Ensure that Payment has a primary key defined
-            modelBuilder.Entity<Payments>()
+            modelBuilder.Entity<Payments>().ToTable("Payments")
                 .HasKey(cs => cs.PaymentID);
 
             // Ensure that ContractorResponse has a primary key defined
-            modelBuilder.Entity<Contractor>()
+            modelBuilder.Entity<Contractor>().ToTable("Contractors")
                 .HasKey(cs => cs.ContractorID);
         }
     }

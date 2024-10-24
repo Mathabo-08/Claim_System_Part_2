@@ -5,20 +5,31 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<header>
-    <nav>
-        <ul>
-            <li><a asp-controller="ClaimSystem" asp-action="Login">Login</a></li>
-            <li><a asp-controller="ClaimSystem" asp-action="Success">Success</a></li>
-        </ul>
-    </nav>
-</header>
-
 <h2>Submit Claim</h2>
 
 <div class="form-container">
     <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="ClaimDate" />
+
+        <div class="form-group">
+            <label asp-for="ClaimDate">Claim Date</label>
+            <input type="datetime" asp-for="ClaimDate" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="EmployeeNumber">Employee number</label>
+            <input type="number" asp-for="EmployeeNumber" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Course">Course</label>
+            <input type="Text" asp-for="Course" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ModuleCode">Module Code</label>
+            <input type="text" asp-for="ModuleCode" class="form-control" required />
+        </div>
 
         <div class="form-group">
             <label asp-for="Amount">Amount</label>

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // For async operations
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,6 +33,7 @@ namespace ClaimManagementSystem.Controllers
             }
             else if (role == "Contractor")
             {
+                // Directly redirect to the Login_Contractor view
                 return RedirectToAction("Login_Contractor");
             }
 
@@ -48,22 +49,47 @@ namespace ClaimManagementSystem.Controllers
 
         // POST: Login_Lecturer
         [HttpPost]
-        public async Task<IActionResult> Login_Lecturer(int employeeNumber, string lecturerEmail)
+        public async Task<IActionResult> Login_Lecturer(Lecturer lecturer)
         {
-            var lecturer = await _context.Lecturers
-                .FirstOrDefaultAsync(u => u.EmployeeNumber == employeeNumber && u.LecturerEmail == lecturerEmail);
+            var existingLecturer = await _context.Lecturer
+                .FirstOrDefaultAsync(u => u.LecturerEmail == lecturer.LecturerEmail);
 
-            if (lecturer != null)
+            if (existingLecturer != null)
             {
-                HttpContext.Session.SetInt32("UserId", lecturer.EmployeeNumber);
+                HttpContext.Session.SetInt32("UserId", existingLecturer.EmployeeNumber);
                 HttpContext.Session.SetString("Role", "Lecturer");
                 return RedirectToAction("SubmitClaim");
             }
+            else
+            {
+                _context.Lecturer.Add(new Lecturer
+                {
+                    LecturerEmail = lecturer.LecturerEmail,
+                    LecturerName = "Default Name",
+                    LecturerSurname = "Default Surname",
+                    LecturerPassword = "Default Password",
+                    ModuleCode = "WEB51",
+                    Course = "Default Course",
+                    MonthlyHoursWorked = 0,
+                    HourlyRate = 0.0m
+                });
+
+                await _context.SaveChangesAsync();
+
+                var savedLecturer = await _context.Lecturer
+                    .FirstOrDefaultAsync(u => u.LecturerEmail == lecturer.LecturerEmail);
+
+                if (savedLecturer != null)
+                {
+                    HttpContext.Session.SetInt32("UserId", savedLecturer.EmployeeNumber);
+                    HttpContext.Session.SetString("Role", "Lecturer");
+                    return RedirectToAction("SubmitClaim");
+                }
+            }
 
             ModelState.AddModelError("", "Invalid login attempt.");
-            return View();
+            return View(lecturer);
         }
-
         // GET: Login_Contractor
         public IActionResult Login_Contractor()
         {
@@ -72,21 +98,47 @@ namespace ClaimManagementSystem.Controllers
 
         // POST: Login_Contractor
         [HttpPost]
-        public async Task<IActionResult> Login_Contractor(int contractorID, string contractorEmail, string typeOfContractor)
+        public async Task<IActionResult> Login_Contractor(Contractor contractor)
         {
-            var contractor = await _context.Contractors
-                .FirstOrDefaultAsync(u => u.ContractorID == contractorID && u.ContractorEmail == contractorEmail && u.TypeOfContractor == typeOfContractor);
+            var existingContractor = await _context.Contractors
+                .FirstOrDefaultAsync(u => u.ContractorEmail == contractor.ContractorEmail);
 
-            if (contractor != null)
+            if (existingContractor != null)
             {
-                HttpContext.Session.SetInt32("UserId", contractor.ContractorID);
+                HttpContext.Session.SetInt32("UserId", existingContractor.ContractorID);
                 HttpContext.Session.SetString("Role", "Contractor");
                 return RedirectToAction("PendingClaims");
             }
+            else
+            {
+                // Create a new contractor with default values
+                _context.Contractors.Add(new Contractor
+                {
+                    ContractorUserName = "Default UserName",
+                    ContractorEmail = contractor.ContractorEmail,
+                    TypeOfContractor = contractor.TypeOfContractor,
+                    ContractorPassword = "Default Password", // Set this to a secure value in production
+                    Role = "Project Coordinator", // Set a default role if needed
+                    ContractorWorkCampus = "Default Campus" // Set a default work campus if needed
+                });
+
+                await _context.SaveChangesAsync();
+
+                var savedContractor = await _context.Contractors
+                    .FirstOrDefaultAsync(u => u.ContractorEmail == contractor.ContractorEmail);
+
+                if (savedContractor != null)
+                {
+                    HttpContext.Session.SetInt32("UserId", savedContractor.ContractorID);
+                    HttpContext.Session.SetString("Role", "Contractor");
+                    return RedirectToAction("PendingClaims");
+                }
+            }
 
             ModelState.AddModelError("", "Invalid login attempt.");
-            return View();
+            return View(contractor);
         }
+
 
         // GET: Submit Claim
         public IActionResult SubmitClaim()
@@ -108,16 +160,15 @@ namespace ClaimManagementSystem.Controllers
 
                 claim.ClaimDate = DateTime.Now;
                 claim.EmployeeNumber = HttpContext.Session.GetInt32("UserId").Value;
-                claim.SuppDocUploadDate = DateTime.Now; // Set upload date
+                claim.SuppDocUploadDate = DateTime.Now;
 
                 _context.ClaimSubmission.Add(claim);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Success");
+                return RedirectToAction("Claim_Status");
             }
 
             return View(claim);
         }
-
 
         // GET: Pending Claims for Contractors
         public async Task<IActionResult> PendingClaims()
@@ -137,10 +188,9 @@ namespace ClaimManagementSystem.Controllers
 
             if (claim != null)
             {
-                claim.ClaimStatus = response; // Update claim status
+                claim.ClaimStatus = response;
                 await _context.SaveChangesAsync();
 
-                // Update ClaimStatus table if needed
                 var claimStatus = new ClaimStatus
                 {
                     StatusDate = DateTime.Now,
@@ -156,39 +206,20 @@ namespace ClaimManagementSystem.Controllers
             return RedirectToAction("PendingClaims");
         }
 
-        // GET: Claim Status Page
-        public async Task<IActionResult> Claim_Status()
+        // GET: Claim_Status Page
+        public IActionResult Claim_Status()
         {
-            int employeeNumber = HttpContext.Session.GetInt32("UserId").Value;
-
-            // Get all claims submitted by the lecturer
-            var claims = await _context.ClaimSubmission
-                .Where(cs => cs.EmployeeNumber == employeeNumber)
-                .ToListAsync();
-
-            // Get contractor responses for those claims
-            var contractorResponses = await _context.ContractorResponds
-                .Where(cr => claims.Select(c => c.ClaimID).Contains(cr.ClaimID))
-                .OrderByDescending(cr => cr.ResponseDate)
-                .ToListAsync();
-
-            return View(contractorResponses);
+            return View();
         }
 
-
-
-        // Method to allow contractors to download the uploaded file from the database
-        public async Task<IActionResult> DownloadFile(int claimId)
+        protected override void Dispose(bool disposing)
         {
-            var claim = await _context.ClaimSubmission.FindAsync(claimId);
-            if (claim == null || claim.SuppDocFileContent == null)
+            if (disposing)
             {
-                return NotFound();
+                _context.Dispose();
             }
-
-            string fileName = claim.SuppDocFileName;
-            return File(claim.SuppDocFileContent, "application/octet-stream", fileName);
+            base.Dispose(disposing);
         }
-
     }
 }
+
