@@ -14,7 +14,7 @@ namespace ClaimManagementSystem.Context
         public DbSet<Contractor> Contractors { get; set; }
         public DbSet<Payments> Payments { get; set; }
         public DbSet<ClaimStatus> ClaimStatuses { get; set; }
-        public DbSet<ContractorResponse> ContractorResponses { get; set; }
+        public DbSet<ContractorResponse> ContractorResponds { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -156,20 +156,26 @@ namespace ClaimManagementSystem.Controllers
             return RedirectToAction("PendingClaims");
         }
 
-        // GET: Success Page
-        public IActionResult Success()
+        // GET: Claim Status Page
+        public async Task<IActionResult> Claim_Status()
         {
-            return View();
+            int employeeNumber = HttpContext.Session.GetInt32("UserId").Value;
+
+            // Get all claims submitted by the lecturer
+            var claims = await _context.ClaimSubmission
+                .Where(cs => cs.EmployeeNumber == employeeNumber)
+                .ToListAsync();
+
+            // Get contractor responses for those claims
+            var contractorResponses = await _context.ContractorResponds
+                .Where(cr => claims.Select(c => c.ClaimID).Contains(cr.ClaimID))
+                .OrderByDescending(cr => cr.ResponseDate)
+                .ToListAsync();
+
+            return View(contractorResponses);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _context.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+
 
         // Method to allow contractors to download the uploaded file from the database
         public async Task<IActionResult> DownloadFile(int claimId)

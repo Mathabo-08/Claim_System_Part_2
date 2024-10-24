@@ -1,0 +1,37 @@
+﻿@model IEnumerable<ClaimManagementSystem.Models.ContractorResponse>
+@{
+    ViewData["Title"] = "Claim Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Claim Status</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Response Date</th>
+            <th>Contractor Feedback</th>
+            <th>Claim Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var response in Model)
+            {
+                <tr>
+                    <td>@response.ResponseDate.ToString("g")</td>
+                    <td>@response.ContractorFeedback ?? "No feedback provided"</td>
+                    <td>@response.ClaimStatus</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center">No contractor responses available.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
