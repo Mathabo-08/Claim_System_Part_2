@@ -96,10 +96,16 @@ namespace ClaimManagementSystem.Controllers
 
         // POST: Submit Claim
         [HttpPost]
-        public async Task<IActionResult> SubmitClaim(ClaimSubmission claim)
+        public async Task<IActionResult> SubmitClaim(ClaimSubmission claim, IFormFile suppDocFile)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && suppDocFile != null)
             {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await suppDocFile.CopyToAsync(memoryStream);
+                    claim.SuppDocFileContent = memoryStream.ToArray();
+                }
+
                 claim.ClaimDate = DateTime.Now;
                 claim.EmployeeNumber = HttpContext.Session.GetInt32("UserId").Value;
                 claim.SuppDocUploadDate = DateTime.Now; // Set upload date
@@ -111,6 +117,7 @@ namespace ClaimManagementSystem.Controllers
 
             return View(claim);
         }
+
 
         // GET: Pending Claims for Contractors
         public async Task<IActionResult> PendingClaims()
@@ -163,5 +170,19 @@ namespace ClaimManagementSystem.Controllers
             }
             base.Dispose(disposing);
         }
+
+        // Method to allow contractors to download the uploaded file from the database
+        public async Task<IActionResult> DownloadFile(int claimId)
+        {
+            var claim = await _context.ClaimSubmission.FindAsync(claimId);
+            if (claim == null || claim.SuppDocFileContent == null)
+            {
+                return NotFound();
+            }
+
+            string fileName = claim.SuppDocFileName;
+            return File(claim.SuppDocFileContent, "application/octet-stream", fileName);
+        }
+
     }
 }
